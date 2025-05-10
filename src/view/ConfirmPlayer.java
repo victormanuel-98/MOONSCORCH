@@ -65,6 +65,10 @@ public class ConfirmPlayer extends JFrame {
         btnAventura.setForeground(Color.WHITE);
         btnAventura.setFocusPainted(false);
         contentPanel.add(btnAventura);
+        btnAventura.addActionListener(e->{
+        	new GameIntroScene().setVisible(true);
+        	dispose();
+        });
 
         JButton btnFull = new JButton("⛶");
         btnFull.setFont(new Font("Dialog", Font.BOLD, 20));
