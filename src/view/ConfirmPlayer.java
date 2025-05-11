@@ -1,120 +1,72 @@
 package view;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Map;
+import java.awt.event.ActionListener;
+import util.ResourceLoader;
 
-public class ConfirmPlayer extends JFrame {
+public class ConfirmPlayer extends BaseView {
 
-    public ConfirmPlayer(String nombre, String clase, String imagenPath, Map<String, Integer> stats) {
-        setTitle("Confirmar jugador");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 1024, 600);
-        setMinimumSize(new Dimension(800, 500));
+    private JLabel personajeImg;
+    private JLabel textoConfirmacion;
+    private JButton btnConfirmar;
+    private JButton btnVolver;
 
-        JPanel contentPanel = new BackgroundPanel("./Resources/images/reyAmarillo.png");
-        contentPanel.setLayout(null);
-        setContentPane(contentPanel);
+    private String personaje;
 
-        JLabel lblNombreClase = new JLabel("Sir " + clase + " " + nombre);
-        lblNombreClase.setFont(new Font("Serif", Font.BOLD, 24));
-        lblNombreClase.setForeground(Color.WHITE);
-        lblNombreClase.setBounds(350, 30, 500, 30);
-        contentPanel.add(lblNombreClase);
+    public ConfirmPlayer(String personaje) {
+        super();
+        this.personaje = personaje;
 
-        JLabel lblImagen = new JLabel();
-        lblImagen.setBounds(50, 100, 250, 350);
-        lblImagen.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
-        try {
-            Image img = ImageIO.read(new File(imagenPath)).getScaledInstance(250, 350, Image.SCALE_SMOOTH);
-            lblImagen.setIcon(new ImageIcon(img));
-        } catch (Exception e) {
-            lblImagen.setText("Sin imagen");
-            lblImagen.setForeground(Color.WHITE);
-        }
-        contentPanel.add(lblImagen);
+        setLayout(null);
 
-        JPanel panelStats = new JPanel(new GridLayout(6, 1, 10, 10));
-        panelStats.setBounds(350, 100, 300, 220);
-        panelStats.setOpaque(false);
+        // Imagen del personaje seleccionada
+        personajeImg = new JLabel(resizeImage(
+                cargarImagenPersonaje(personaje), 200, 200));
+        personajeImg.setBounds(100, 200, 200, 200);
+        add(personajeImg);
 
-        stats.forEach((k, v) -> {
-            JLabel lbl = new JLabel(k + ": " + v);
-            lbl.setForeground(Color.WHITE);
-            lbl.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            panelStats.add(lbl);
-        });
-        contentPanel.add(panelStats);
+        // Texto de confirmación
+        textoConfirmacion = new JLabel("¿Deseas jugar como " + personaje + "?", SwingConstants.CENTER);
+        textoConfirmacion.setFont(new Font("Serif", Font.BOLD, 24));
+        textoConfirmacion.setForeground(Color.WHITE);
+        textoConfirmacion.setBounds(350, 200, 600, 50);
+        add(textoConfirmacion);
 
-        JButton btnVolver = new JButton("VOLVER");
-        btnVolver.setBounds(350, 400, 130, 40);
-        btnVolver.setBackground(new Color(120, 0, 0));
-        btnVolver.setForeground(Color.WHITE);
-        btnVolver.setFocusPainted(false);
-        btnVolver.addActionListener(e -> {
-            new DataPlayer(nombre, baseStatsFromMap(stats), imagenPath).setVisible(true);
-            dispose();
-        });
-        contentPanel.add(btnVolver);
+        // Botón confirmar
+        btnConfirmar = new JButton("Confirmar");
+        btnConfirmar.setBounds(550, 300, 150, 40);
+        add(btnConfirmar);
 
-        JButton btnAventura = new JButton("COMENZAR AVENTURA");
-        btnAventura.setBounds(500, 400, 200, 40);
-        btnAventura.setBackground(new Color(0, 100, 0));
-        btnAventura.setForeground(Color.WHITE);
-        btnAventura.setFocusPainted(false);
-        contentPanel.add(btnAventura);
-        btnAventura.addActionListener(e->{
-        	new GameIntroScene().setVisible(true);
-        	dispose();
-        });
-
-        JButton btnFull = new JButton("⛶");
-        btnFull.setFont(new Font("Dialog", Font.BOLD, 20));
-        btnFull.setForeground(Color.WHITE);
-        btnFull.setBackground(new Color(0, 0, 0, 180));
-        btnFull.setFocusPainted(false);
-        btnFull.setBorderPainted(false);
-        btnFull.setOpaque(true);
-        btnFull.setBounds(940, 500, 50, 50);
-        btnFull.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnFull.addActionListener(e -> {
-            dispose();
-            setUndecorated(!isUndecorated());
-            setVisible(true);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
-        });
-        contentPanel.add(btnFull);
+        // Botón volver
+        btnVolver = new JButton("Volver");
+        btnVolver.setBounds(550, 360, 150, 40);
+        add(btnVolver);
     }
 
-    private int[] baseStatsFromMap(Map<String, Integer> stats) {
-        return new int[]{
-            stats.getOrDefault("ATK", 0),
-            stats.getOrDefault("DEF", 0),
-            stats.getOrDefault("EVA", 0),
-            stats.getOrDefault("HP", 0) - 20,  // quitar los +20 para rehacer
-            stats.getOrDefault("MP", 0)
-        };
+    private ImageIcon cargarImagenPersonaje(String nombre) {
+        switch (nombre.toLowerCase()) {
+            case "ladron":
+                return ResourceLoader.loadImageIcon("ladron.png");
+            case "caballero":
+                return ResourceLoader.loadImageIcon("caballero.png");
+            case "clerigo":
+            case "mago":
+                return ResourceLoader.loadImageIcon("mago.png");
+            default:
+                return new ImageIcon();
+        }
     }
 
-    class BackgroundPanel extends JPanel {
-        private Image backgroundImage;
+    public void setConfirmarAction(ActionListener listener) {
+        btnConfirmar.addActionListener(listener);
+    }
 
-        public BackgroundPanel(String path) {
-            try {
-                backgroundImage = ImageIO.read(new File(path));
-            } catch (Exception e) {
-                System.err.println("No se pudo cargar el fondo: " + e.getMessage());
-            }
-        }
+    public void setFullscreenAction(ActionListener listener) {
+        fullscreenButton.addActionListener(listener);
+    }
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (backgroundImage != null) {
-                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-            }
-        }
+    public JButton getVolverButton() {
+        return btnVolver;
     }
 }
