@@ -1,55 +1,52 @@
 package view;
 
+import model.PlayerCombatData;
+import util.ResourceLoader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import util.ResourceLoader;
 
 public class ReadyForBattle extends BaseView {
 
-    private JLabel mensajeLabel;
     private JLabel personajeImg;
+    private JLabel resumenLabel;
     private JButton comenzarBtn;
 
-    public ReadyForBattle(String nombreHeroe, String personaje) {
+    public ReadyForBattle(PlayerCombatData jugador) {
         super();
         setLayout(null);
 
         // Imagen del personaje
         personajeImg = new JLabel(resizeImage(
-                cargarImagenPersonaje(personaje), 200, 200));
+                ResourceLoader.loadImageIcon(jugador.clase.toLowerCase() + ".png"), 200, 200));
         personajeImg.setBounds(100, 200, 200, 200);
         add(personajeImg);
 
-        // Mensaje introductorio
-        String mensaje = "<html><center>Valiente <b>" + nombreHeroe + "</b>,<br>" +
-                "tu viaje comienza ahora...<br><br>" +
-                "Prepárate para tu primera batalla.</center></html>";
+        // Resumen de los stats
+        String resumen = "<html><center>" +
+                "<b>" + jugador.nombre + "</b><br>" +
+                "Clase: " + jugador.clase + "<br>" +
+                "Nivel: " + jugador.nivel + "<br><br>" +
+                "ATK: " + jugador.stats[0] + " &nbsp;&nbsp; " +
+                "DEF: " + jugador.stats[1] + " &nbsp;&nbsp; " +
+                "EVA: " + jugador.stats[2] + "<br>" +
+                "HP: " + jugador.stats[3] + " &nbsp;&nbsp; " +
+                "MP: " + jugador.stats[4] + " &nbsp;&nbsp; " +
+                "LUK: " + jugador.stats[5] + "<br><br>" +
+                "¿Estás listo para comenzar tu primera batalla?" +
+                "</center></html>";
 
-        mensajeLabel = new JLabel(mensaje, SwingConstants.CENTER);
-        mensajeLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        mensajeLabel.setForeground(Color.WHITE);
-        mensajeLabel.setBounds(350, 180, 600, 150);
-        add(mensajeLabel);
+        resumenLabel = new JLabel(resumen, SwingConstants.CENTER);
+        resumenLabel.setForeground(Color.WHITE);
+        resumenLabel.setFont(new Font("Serif", Font.BOLD, 20));
+        resumenLabel.setBounds(350, 150, 600, 250);
+        add(resumenLabel);
 
-        // Botón para iniciar la batalla
+        // Botón: Comenzar batalla
         comenzarBtn = new JButton("Comenzar Batalla");
-        comenzarBtn.setBounds(550, 400, 200, 50);
+        comenzarBtn.setBounds(540, 450, 200, 50);
         add(comenzarBtn);
-    }
-
-    private ImageIcon cargarImagenPersonaje(String nombre) {
-        switch (nombre.toLowerCase()) {
-            case "ladron":
-                return ResourceLoader.loadImageIcon("ladron.png");
-            case "caballero":
-                return ResourceLoader.loadImageIcon("caballero.png");
-            case "clerigo":
-            case "mago":
-                return ResourceLoader.loadImageIcon("mago.png");
-            default:
-                return new ImageIcon();
-        }
     }
 
     public void setComenzarAction(ActionListener listener) {

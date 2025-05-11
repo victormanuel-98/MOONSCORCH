@@ -1,4 +1,4 @@
-package dao;
+/*package dao;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -84,4 +84,6 @@ public class PersonajeDAO {
             System.err.println("❌ Error al eliminar personaje: " + e.getMessage());
         }
     }
-}
+}*/
+
+/* Cambios a futuro*/
