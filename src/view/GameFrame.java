@@ -1,143 +1,103 @@
 package view;
 
+import model.PlayerCombatData;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
 
 public class GameFrame extends JFrame {
 
     private CardLayout layout;
-    private JPanel container;
-    private HashMap<String, JPanel> vistas;
+    private JPanel mainPanel;
 
     private String personajeSeleccionado;
-    private int[] statsSeleccionados;
-    private String nombreHeroe;
 
     public GameFrame() {
-        super("MoonScorch");
-
-        layout = new CardLayout();
-        container = new JPanel(layout);
-        vistas = new HashMap<>();
-
+        setTitle("MoonScorch");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1280, 720);
         setLocationRelativeTo(null);
+        setResizable(true);
 
-        // Vistas iniciales
-        addVista("launch", new LaunchView());
-        addVista("intro", new GameIntroScene());
-        addVista("select", new CharacterMenu());
+        layout = new CardLayout();
+        mainPanel = new JPanel(layout);
+        setContentPane(mainPanel);
 
-        setContentPane(container);
+        mostrarLaunch();
         setVisible(true);
-
-        configurarNavegacion();
     }
 
-    private void addVista(String nombre, JPanel vista) {
-        container.add(vista, nombre);
-        vistas.put(nombre, vista);
+    private void mostrarLaunch() {
+        LaunchView launch = new LaunchView();
+        launch.setNewGameAction(e -> showPanel(new GameIntroScene()));
+        launch.setExitAction(e -> System.exit(0));
+        launch.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
+        showPanel(launch);
     }
 
-    private void configurarNavegacion() {
-        // Launch → Intro
-        LaunchView lv = (LaunchView) vistas.get("launch");
-        lv.setNewGameAction(e -> mostrarVista("intro"));
-        lv.setExitAction(e -> System.exit(0));
-        lv.setFullscreenAction(e -> toggleFullscreen());
+    private void showPanel(JPanel panel) {
+        mainPanel.add(panel, panel.getClass().getName());
+        layout.show(mainPanel, panel.getClass().getName());
+    }
 
-        // Intro → Selección
-        GameIntroScene intro = (GameIntroScene) vistas.get("intro");
-        intro.setContinuarAction(e -> mostrarVista("select"));
-        intro.setFullscreenAction(e -> toggleFullscreen());
-
-        // Selección → Confirmación
-        CharacterMenu menu = (CharacterMenu) vistas.get("select");
+    public void mostrarCharacterMenu() {
+        CharacterMenu menu = new CharacterMenu();
 
         menu.setLadronAction(e -> {
-            personajeSeleccionado = "Ladron";
-            statsSeleccionados = new int[]{8, 6, 9, 90, 25, 6};
-            cargarVistaConfirmacion();
+            personajeSeleccionado = "ladron";
+            showPanel(new ConfirmPlayer(personajeSeleccionado));
         });
 
         menu.setCaballeroAction(e -> {
-            personajeSeleccionado = "Caballero";
-            statsSeleccionados = new int[]{12, 10, 5, 120, 10, 3};
-            cargarVistaConfirmacion();
+            personajeSeleccionado = "caballero";
+            showPanel(new ConfirmPlayer(personajeSeleccionado));
         });
 
         menu.setClerigoAction(e -> {
-            personajeSeleccionado = "Clerigo";
-            statsSeleccionados = new int[]{6, 6, 6, 100, 40, 5};
-            cargarVistaConfirmacion();
+            personajeSeleccionado = "mago";
+            showPanel(new ConfirmPlayer(personajeSeleccionado));
         });
 
-        menu.setFullscreenAction(e -> toggleFullscreen());
+        menu.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
+        showPanel(menu);
     }
 
-    private void cargarVistaConfirmacion() {
-        ConfirmPlayer confirm = new ConfirmPlayer(personajeSeleccionado);
+    public void mostrarDataPlayer(String personaje) {
+        int[] baseStats;
+        switch (personaje) {
+            case "ladron":
+                baseStats = new int[]{5, 3, 7, 60, 30, 1};
+                break;
+            case "caballero":
+                baseStats = new int[]{7, 6, 2, 80, 20, 1};
+                break;
+            case "mago":
+                baseStats = new int[]{4, 2, 4, 50, 60, 1};
+                break;
+            default:
+                baseStats = new int[]{5, 5, 5, 50, 50, 1};
+        }
 
-        confirm.setConfirmarAction(e -> {
-            CharacterStats statsView = new CharacterStats(personajeSeleccionado, statsSeleccionados);
-            statsView.setContinuarAction(ev -> cargarVistaDataPlayer());
-            statsView.setFullscreenAction(ev -> toggleFullscreen());
-            addVista("stats", statsView);
-            mostrarVista("stats");
-        });
+        DataPlayer dataPlayer = new DataPlayer(personaje, baseStats);
 
-        confirm.setFullscreenAction(e -> toggleFullscreen());
+        dataPlayer.setContinuarAction(e -> {
+            String nombre = dataPlayer.getNombreHeroe();
+            int[] statsFinales = dataPlayer.getStatsFinales();
 
-        addVista("confirm", confirm);
-        mostrarVista("confirm");
-    }
-
-    private void cargarVistaDataPlayer() {
-        DataPlayer dp = new DataPlayer(personajeSeleccionado, statsSeleccionados);
-
-        dp.setResetAction(e -> dp.resetOpciones());
-
-        dp.setContinuarAction(e -> {
-            nombreHeroe = dp.getNombreHeroe();
-            String mejora = dp.getOpcionSeleccionada();
-
-            if (nombreHeroe.isEmpty() || mejora == null) {
-                JOptionPane.showMessageDialog(this, "Debes escribir un nombre y elegir una mejora.");
+            if (nombre.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, ingresa un nombre para tu héroe.");
                 return;
             }
 
-            cargarVistaReadyForBattle();
+            PlayerCombatData jugador = new PlayerCombatData(nombre, personaje, 1, statsFinales);
+            showPanel(new ReadyForBattle(jugador));
         });
 
-        dp.setVolverAction(e -> mostrarVista("select"));
-        dp.setFullscreenAction(e -> toggleFullscreen());
+        dataPlayer.setVolverAction(e -> mostrarCharacterMenu());
+        dataPlayer.setResetAction(e -> dataPlayer.resetOpciones());
+        dataPlayer.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
 
-        addVista("data", dp);
-        mostrarVista("data");
-    }
-
-    private void cargarVistaReadyForBattle() {
-        ReadyForBattle rfb = new ReadyForBattle(nombreHeroe, personajeSeleccionado);
-
-        rfb.setComenzarAction(e -> {
-            JOptionPane.showMessageDialog(this, "Aquí iniciará la batalla...");
-            // Aquí cargarías CombatView o la primera batalla
-        });
-
-        rfb.setFullscreenAction(e -> toggleFullscreen());
-
-        addVista("ready", rfb);
-        mostrarVista("ready");
-    }
-
-    public void mostrarVista(String nombre) {
-        layout.show(container, nombre);
-    }
-
-    private void toggleFullscreen() {
-        setExtendedState(getExtendedState() ^ JFrame.MAXIMIZED_BOTH);
+        showPanel(dataPlayer);
     }
 
     public static void main(String[] args) {
