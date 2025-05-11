@@ -1,5 +1,6 @@
 package view;
 
+import model.GameState;
 import model.PlayerCombatData;
 
 import javax.swing.*;
@@ -89,8 +90,11 @@ public class GameFrame extends JFrame {
                 return;
             }
 
-            PlayerCombatData jugador = new PlayerCombatData(nombre, personaje, 1, statsFinales);
-            showPanel(new ReadyForBattle(jugador));
+            // Guardar el jugador actual en GameState
+            GameState.jugadorActual = new PlayerCombatData(nombre, personaje, 1, statsFinales);
+
+            // Pasar a la siguiente pantalla sin parámetros
+            showPanel(new ReadyForBattle());
         });
 
         dataPlayer.setVolverAction(e -> mostrarCharacterMenu());
