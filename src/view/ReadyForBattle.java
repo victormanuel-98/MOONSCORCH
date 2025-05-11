@@ -1,5 +1,6 @@
 package view;
 
+import model.GameState;
 import model.PlayerCombatData;
 import util.ResourceLoader;
 
@@ -13,9 +14,11 @@ public class ReadyForBattle extends BaseView {
     private JLabel resumenLabel;
     private JButton comenzarBtn;
 
-    public ReadyForBattle(PlayerCombatData jugador) {
+    public ReadyForBattle() {
         super();
         setLayout(null);
+
+        PlayerCombatData jugador = GameState.jugadorActual;
 
         // Imagen del personaje
         personajeImg = new JLabel(resizeImage(
@@ -23,7 +26,7 @@ public class ReadyForBattle extends BaseView {
         personajeImg.setBounds(100, 200, 200, 200);
         add(personajeImg);
 
-        // Resumen de los stats
+        // Resumen visual
         String resumen = "<html><center>" +
                 "<b>" + jugador.nombre + "</b><br>" +
                 "Clase: " + jugador.clase + "<br>" +
@@ -43,7 +46,7 @@ public class ReadyForBattle extends BaseView {
         resumenLabel.setBounds(350, 150, 600, 250);
         add(resumenLabel);
 
-        // Botón: Comenzar batalla
+        // Botón para comenzar batalla
         comenzarBtn = new JButton("Comenzar Batalla");
         comenzarBtn.setBounds(540, 450, 200, 50);
         add(comenzarBtn);
