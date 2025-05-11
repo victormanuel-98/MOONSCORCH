@@ -30,9 +30,18 @@ public class GameFrame extends JFrame {
 
     private void mostrarLaunch() {
         LaunchView launch = new LaunchView();
-        launch.setNewGameAction(e -> showPanel(new GameIntroScene()));
+
+        // Conecta con GameIntroScene
+        launch.setNewGameAction(e -> {
+            GameIntroScene intro = new GameIntroScene();
+            intro.setContinuarAction(ev -> mostrarCharacterMenu());
+            intro.setFullscreenAction(ev -> setExtendedState(JFrame.MAXIMIZED_BOTH));
+            showPanel(intro);
+        });
+
         launch.setExitAction(e -> System.exit(0));
         launch.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
+
         showPanel(launch);
     }
 
@@ -46,17 +55,17 @@ public class GameFrame extends JFrame {
 
         menu.setLadronAction(e -> {
             personajeSeleccionado = "ladron";
-            showPanel(new ConfirmPlayer(personajeSeleccionado));
+            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
         });
 
         menu.setCaballeroAction(e -> {
             personajeSeleccionado = "caballero";
-            showPanel(new ConfirmPlayer(personajeSeleccionado));
+            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
         });
 
         menu.setClerigoAction(e -> {
             personajeSeleccionado = "mago";
-            showPanel(new ConfirmPlayer(personajeSeleccionado));
+            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
         });
 
         menu.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
@@ -90,11 +99,8 @@ public class GameFrame extends JFrame {
                 return;
             }
 
-            // Guardar el jugador actual en GameState
             GameState.jugadorActual = new PlayerCombatData(nombre, personaje, 1, statsFinales);
-
-            // Pasar a la siguiente pantalla sin parámetros
-            showPanel(new ReadyForBattle());
+            mostrarReadyForBattle();
         });
 
         dataPlayer.setVolverAction(e -> mostrarCharacterMenu());
@@ -102,6 +108,15 @@ public class GameFrame extends JFrame {
         dataPlayer.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
 
         showPanel(dataPlayer);
+    }
+
+    public void mostrarReadyForBattle() {
+        ReadyForBattle readyView = new ReadyForBattle();
+
+        readyView.setComenzarAction(e -> showPanel(new MapOverview()));
+        readyView.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
+
+        showPanel(readyView);
     }
 
     public static void main(String[] args) {
