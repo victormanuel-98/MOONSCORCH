@@ -1,72 +1,49 @@
 package view;
 
+import util.ResourceLoader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import util.ResourceLoader;
 
 public class ConfirmPlayer extends BaseView {
 
-    private JLabel personajeImg;
-    private JLabel textoConfirmacion;
-    private JButton btnConfirmar;
-    private JButton btnVolver;
+    private final String personaje;
+    private final GameFrame frame;
 
-    private String personaje;
-
-    public ConfirmPlayer(String personaje) {
+    public ConfirmPlayer(String personaje, GameFrame frame) {
         super();
         this.personaje = personaje;
+        this.frame = frame;
 
         setLayout(null);
 
-        // Imagen del personaje seleccionada
-        personajeImg = new JLabel(resizeImage(
-                cargarImagenPersonaje(personaje), 200, 200));
-        personajeImg.setBounds(100, 200, 200, 200);
-        add(personajeImg);
+        JLabel mensaje = new JLabel("¿Confirmas elegir a: " + personaje.toUpperCase() + "?", SwingConstants.CENTER);
+        mensaje.setFont(new Font("Serif", Font.BOLD, 22));
+        mensaje.setForeground(Color.WHITE);
+        mensaje.setBounds(300, 80, 700, 40);
+        add(mensaje);
 
-        // Texto de confirmación
-        textoConfirmacion = new JLabel("¿Deseas jugar como " + personaje + "?", SwingConstants.CENTER);
-        textoConfirmacion.setFont(new Font("Serif", Font.BOLD, 24));
-        textoConfirmacion.setForeground(Color.WHITE);
-        textoConfirmacion.setBounds(350, 200, 600, 50);
-        add(textoConfirmacion);
+        ImageIcon icono = ResourceLoader.loadImageIcon(personaje.toLowerCase() + ".png");
+        JLabel imagenPersonaje = new JLabel(resizeImage(icono, 250, 250));
+        imagenPersonaje.setBounds(500, 140, 250, 250);
+        add(imagenPersonaje);
 
-        // Botón confirmar
-        btnConfirmar = new JButton("Confirmar");
-        btnConfirmar.setBounds(550, 300, 150, 40);
+        JButton btnConfirmar = new JButton("Confirmar");
+        btnConfirmar.setBounds(500, 450, 120, 40);
         add(btnConfirmar);
 
-        // Botón volver
-        btnVolver = new JButton("Volver");
-        btnVolver.setBounds(550, 360, 150, 40);
+        JButton btnVolver = new JButton("Volver");
+        btnVolver.setBounds(640, 450, 120, 40);
         add(btnVolver);
-    }
 
-    private ImageIcon cargarImagenPersonaje(String nombre) {
-        switch (nombre.toLowerCase()) {
-            case "ladron":
-                return ResourceLoader.loadImageIcon("ladron.png");
-            case "caballero":
-                return ResourceLoader.loadImageIcon("caballero.png");
-            case "clerigo":
-            case "mago":
-                return ResourceLoader.loadImageIcon("mago.png");
-            default:
-                return new ImageIcon();
-        }
-    }
+        btnConfirmar.addActionListener(e -> frame.mostrarDataPlayer(personaje));
+        btnVolver.addActionListener(e -> frame.mostrarCharacterMenu());
 
-    public void setConfirmarAction(ActionListener listener) {
-        btnConfirmar.addActionListener(listener);
+        setFullscreenAction(e -> frame.setExtendedState(JFrame.MAXIMIZED_BOTH));
     }
 
     public void setFullscreenAction(ActionListener listener) {
         fullscreenButton.addActionListener(listener);
-    }
-
-    public JButton getVolverButton() {
-        return btnVolver;
     }
 }
