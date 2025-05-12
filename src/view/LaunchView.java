@@ -18,7 +18,7 @@ public class LaunchView extends BaseView {
         newGameButton = new JButton("Nueva Partida");
         newGameButton.setBounds(500, 400, 280, 50);
         add(newGameButton);
-
+       
         // Botón: Salir
         exitButton = new JButton("Salir");
         exitButton.setBounds(500, 470, 280, 50);
