@@ -13,6 +13,13 @@ public class LaunchView extends BaseView {
     public LaunchView() {
         super();
         setLayout(null);
+        
+        // Título del juego
+        JLabel titulo = new JLabel("MoonScorch", SwingConstants.CENTER);
+        titulo.setFont(new Font("Serif", Font.BOLD, 100));
+        titulo.setForeground(new Color(139, 0, 0)); // Rojo oscuro
+        titulo.setBounds(300, 100, 680, 80); // Centrado y en posición destacada
+        add(titulo);
 
         // Botón: Nueva Partida
         newGameButton = new JButton("Nueva Partida");
