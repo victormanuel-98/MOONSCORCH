@@ -48,6 +48,12 @@ public class MapOverview extends BaseView {
             add(btn);
         }
 
+        // Botón para abrir el inventario
+        JButton btnInventario = new JButton("Inventario");
+        btnInventario.setBounds(1060, 20, 150, 40);
+        btnInventario.addActionListener(e -> InventarioView.mostrarDesdeMapa(this));
+        add(btnInventario);
+
         deshabilitarTodosMenos(nodoActual);
     }
 
