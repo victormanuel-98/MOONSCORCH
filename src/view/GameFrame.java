@@ -31,7 +31,6 @@ public class GameFrame extends JFrame {
     private void mostrarLaunch() {
         LaunchView launch = new LaunchView();
 
-        // Conecta con GameIntroScene
         launch.setNewGameAction(e -> {
             GameIntroScene intro = new GameIntroScene();
             intro.setContinuarAction(ev -> mostrarCharacterMenu());
@@ -50,22 +49,27 @@ public class GameFrame extends JFrame {
         layout.show(mainPanel, panel.getClass().getName());
     }
 
+    // NUEVO MÉTODO PÚBLICO para que otras vistas puedan solicitar un cambio
+    public void cambiarVista(JPanel panel) {
+        showPanel(panel);
+    }
+
     public void mostrarCharacterMenu() {
         CharacterMenu menu = new CharacterMenu();
 
         menu.setLadronAction(e -> {
             personajeSeleccionado = "ladron";
-            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
+            showPanel(new ConfirmPlayer(personajeSeleccionado, this));
         });
 
         menu.setCaballeroAction(e -> {
             personajeSeleccionado = "caballero";
-            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
+            showPanel(new ConfirmPlayer(personajeSeleccionado, this));
         });
 
         menu.setClerigoAction(e -> {
             personajeSeleccionado = "mago";
-            showPanel(new ConfirmPlayer(personajeSeleccionado,this));
+            showPanel(new ConfirmPlayer(personajeSeleccionado, this));
         });
 
         menu.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
@@ -113,7 +117,10 @@ public class GameFrame extends JFrame {
     public void mostrarReadyForBattle() {
         ReadyForBattle readyView = new ReadyForBattle();
 
-        readyView.setComenzarAction(e -> showPanel(new MapOverview()));
+        readyView.setComenzarAction(e -> {
+            GameState.mapaActual = new MapOverview();
+            cambiarVista(GameState.mapaActual);
+        });
         readyView.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
 
         showPanel(readyView);
