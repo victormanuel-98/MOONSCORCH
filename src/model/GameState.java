@@ -9,7 +9,11 @@ public class GameState {
     // Mantiene la instancia del mapa actual para evitar reinicios
     public static MapOverview mapaActual;
 
-    // En el futuro podrías tener:
-    // public static Inventario inventario;
-    // public static int pisoActual;
+    // Simular objetos iniciales al comenzar la partida
+    public static void asignarObjetosIniciales() {
+        if (jugadorActual != null) {
+            jugadorActual.agregarObjeto("Poción de Vida");
+            jugadorActual.agregarObjeto("Poción de Maná");
+        }
+    }
 }

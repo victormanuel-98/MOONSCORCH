@@ -104,6 +104,7 @@ public class GameFrame extends JFrame {
             }
 
             GameState.jugadorActual = new PlayerCombatData(nombre, personaje, 1, statsFinales);
+            GameState.asignarObjetosIniciales();
             mostrarReadyForBattle();
         });
 

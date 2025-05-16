@@ -46,7 +46,6 @@ public class CharacterStats extends BaseView {
                 return ResourceLoader.loadImageIcon("ladron.png");
             case "caballero":
                 return ResourceLoader.loadImageIcon("caballero.png");
-            case "clerigo":
             case "mago":
                 return ResourceLoader.loadImageIcon("mago.png");
             default:
