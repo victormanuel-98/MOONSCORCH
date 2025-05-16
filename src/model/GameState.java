@@ -1,12 +1,15 @@
 package model;
 
+import view.MapOverview;
+
 public class GameState {
 
-    /** El jugador actual en la sesión de juego */
     public static PlayerCombatData jugadorActual;
 
-    // En el futuro puedes agregar más datos globales, como:
+    // Mantiene la instancia del mapa actual para evitar reinicios
+    public static MapOverview mapaActual;
+
+    // En el futuro podrías tener:
     // public static Inventario inventario;
     // public static int pisoActual;
-    // public static boolean enBatalla;
 }
