@@ -1,118 +1,123 @@
 package view;
 
 import model.GameState;
+import model.MapNode;
+import model.PlayerCombatData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 public class MapOverview extends BaseView {
-
-    private final String[] nodos = {"PLAYER", "ENEMY", "TREASURE", "ENEMY", "DOOR"};
-    private final ArrayList<JButton> botones = new ArrayList<>();
-    private int nodoActual = 0;
-
-    public MapOverview() {
-        super();
-        setLayout(null);
-
-        int totalNodos = nodos.length;
-        int espacio = 200;
-        int inicioX = 100;
-        int centroY = 300;
-        int radio = 60;
-
-        // Crear botones
-        for (int i = 0; i < totalNodos; i++) {
-            JButton btn = new JButton(nodos[i]);
-            btn.setBounds(inicioX + i * espacio, centroY, radio, radio);
-            btn.setFocusPainted(false);
-            btn.setBorderPainted(false);
-            btn.setOpaque(true);
-            btn.setForeground(Color.WHITE);
-            btn.setFont(new Font("SansSerif", Font.BOLD, 10));
-
-            Color color = switch (nodos[i]) {
-                case "PLAYER" -> new Color(0, 153, 51);
-                case "ENEMY" -> new Color(153, 0, 0);
-                case "TREASURE" -> new Color(255, 204, 0);
-                case "DOOR" -> new Color(0, 153, 255);
-                default -> Color.GRAY;
-            };
-            btn.setBackground(color);
-
-            final int index = i;
-            btn.addActionListener((ActionEvent e) -> manejarClic(index));
-            botones.add(btn);
-            add(btn);
-        }
-
-        // Botón para abrir el inventario
-        JButton btnInventario = new JButton("Inventario");
-        btnInventario.setBounds(1060, 20, 150, 40);
-        btnInventario.addActionListener(e -> InventarioView.mostrarDesdeMapa(this));
-        add(btnInventario);
-
-        deshabilitarTodosMenos(nodoActual);
+    private GameState gameState;
+    private JPanel mapPanel;
+    private JLabel playerInfoLabel;
+    private int nodoActual = 1;
+    
+    // Constructor que recibe GameState
+    public MapOverview(GameState gameState) {
+        this.gameState = gameState;
+        initComponents();
+        cargarDatosJugador();
+        cargarMapa();
     }
-
-    private void manejarClic(int index) {
-        if (index != nodoActual) {
-            JOptionPane.showMessageDialog(this,
-                    "No puedes acceder a este nodo todavía.\nCompleta los anteriores primero.",
-                    "Acceso denegado", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String tipo = nodos[index];
-        switch (tipo) {
-            case "PLAYER" -> {
-                JOptionPane.showMessageDialog(this,
-                        "Eres " + GameState.jugadorActual.nombre + ". ¡Comienza tu recorrido!");
-                avanzar();
-            }
-            case "ENEMY" -> {
-                int r = JOptionPane.showConfirmDialog(this,
-                        "¿Quieres enfrentarte al enemigo?", "Batalla", JOptionPane.YES_NO_OPTION);
-                if (r == JOptionPane.YES_OPTION) {
-                    avanzar();
-                    JOptionPane.showMessageDialog(this, "Simulando batalla...");
-                }
-            }
-            case "TREASURE" -> {
-                GameFrame frame = (GameFrame) SwingUtilities.getWindowAncestor(this);
-                GameState.mapaActual.marcarNodoComoCompletado(nodoActual);
-                GameState.mapaActual.incrementarNodoActual();
-                frame.cambiarVista(new TesoroView());
-            }
-            case "DOOR" -> {
-                JOptionPane.showMessageDialog(this, "¡Has completado este mapa!");
-                avanzar();
-            }
+    
+    @Override
+    protected void initComponents() {
+        super.initComponents();
+        setLayout(new BorderLayout());
+        
+        // Panel de información del jugador
+        playerInfoLabel = new JLabel("Información del jugador");
+        add(playerInfoLabel, BorderLayout.NORTH);
+        
+        // Panel del mapa
+        mapPanel = new JPanel(new GridLayout(3, 3, 10, 10));
+        add(mapPanel, BorderLayout.CENTER);
+        
+        // Panel de botones
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton inventarioButton = new JButton("Inventario");
+        inventarioButton.addActionListener(e -> mostrarInventario());
+        buttonPanel.add(inventarioButton);
+        
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+    
+    private void cargarDatosJugador() {
+        PlayerCombatData jugador = gameState.getPlayerCombatData();
+        if (jugador != null) {
+            playerInfoLabel.setText(
+                String.format("Héroe: %s | Clase: %s | Nivel: %d | HP: %d/%d | MP: %d/%d",
+                    jugador.getName(),
+                    jugador.getClase(),
+                    jugador.getNivel(),
+                    jugador.getCurrentHp(),
+                    jugador.getMaxHp(),
+                    jugador.getCurrentMp(),
+                    jugador.getMaxMp()
+                )
+            );
         }
     }
-
-    private void avanzar() {
-        marcarNodoComoCompletado(nodoActual);
-        nodoActual++;
-        deshabilitarTodosMenos(nodoActual);
+    
+    private void cargarMapa() {
+        mapPanel.removeAll();
+        
+        // Aquí deberías cargar los nodos del mapa desde gameState
+        // Por ahora, crearemos nodos de ejemplo
+        for (int i = 1; i <= 9; i++) {
+            JButton nodoButton = new JButton("Nodo " + i);
+            final int nodoId = i;
+            
+            // Marcar el nodo actual
+            if (i == nodoActual) {
+                nodoButton.setBackground(Color.GREEN);
+                nodoButton.setText("Nodo " + i + " (Actual)");
+            }
+            
+            nodoButton.addActionListener(e -> visitarNodo(nodoId));
+            mapPanel.add(nodoButton);
+        }
+        
+        mapPanel.revalidate();
+        mapPanel.repaint();
     }
-
-    public void marcarNodoComoCompletado(int index) {
-        JButton btn = botones.get(index);
-        btn.setBackground(Color.GRAY);
-        btn.setEnabled(false);
+    
+    private void visitarNodo(int nodoId) {
+        // Aquí deberías implementar la lógica para visitar un nodo
+        // Por ahora, solo actualizamos el nodo actual
+        nodoActual = nodoId;
+        cargarMapa();
+        
+        // Ejemplo: Si hay un enemigo, mostrar combate
+        if (nodoId % 3 == 0) {
+            JOptionPane.showMessageDialog(this, "¡Has encontrado un enemigo en este nodo!");
+            // Aquí iniciarías el combate
+        } 
+        // Ejemplo: Si hay un tesoro, mostrarlo
+        else if (nodoId % 2 == 0) {
+            JOptionPane.showMessageDialog(this, "¡Has encontrado un tesoro en este nodo!");
+            // Aquí mostrarías la vista de tesoro
+        }
     }
-
+    
+    private void mostrarInventario() {
+        // Aquí deberías mostrar la vista de inventario
+        JOptionPane.showMessageDialog(this, "Abriendo inventario...");
+        // Ejemplo: gameFrame.cambiarVista(new InventarioView(gameState));
+    }
+    
     public void incrementarNodoActual() {
         nodoActual++;
-        deshabilitarTodosMenos(nodoActual);
+        cargarMapa();
     }
-
-    private void deshabilitarTodosMenos(int activo) {
-        for (int i = 0; i < botones.size(); i++) {
-            botones.get(i).setEnabled(i == activo);
-        }
+    
+    public void marcarNodoComoCompletado(int nodoId) {
+        // Implementar lógica para marcar nodo como completado
+        JOptionPane.showMessageDialog(this, "Nodo " + nodoId + " completado");
+        cargarMapa();
     }
 }

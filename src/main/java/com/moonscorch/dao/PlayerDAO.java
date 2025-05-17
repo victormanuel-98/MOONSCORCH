@@ -1,6 +1,5 @@
-// Archivo: src/dao/PlayerDAO.java
 
-package dao;
+package com.moonscorch.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import model.Player;
+import com.moonscorch.model.Player;
 
 /**
  * DAO para gestionar jugadores/usuarios en la base de datos.
@@ -19,19 +18,19 @@ public class PlayerDAO extends AbstractDAO<Player> {
     
     private static final Logger LOGGER = Logger.getLogger(PlayerDAO.class.getName());
     
-    private static final String FIND_BY_ID = "SELECT * FROM player WHERE player_id = ?";
+    private static final String FIND_BY_ID = "SELECT * FROM player WHERE id = ?";
     private static final String FIND_ALL = "SELECT * FROM player";
     private static final String FIND_BY_USERNAME = "SELECT * FROM player WHERE username = ?";
-    private static final String INSERT = "INSERT INTO player (username, password_hash, email, created_at) VALUES (?, ?, ?, NOW())";
-    private static final String UPDATE = "UPDATE player SET username = ?, password_hash = ?, email = ? WHERE player_id = ?";
-    private static final String DELETE = "DELETE FROM player WHERE player_id = ?";
+    private static final String INSERT = "INSERT INTO player (username, password, email, created_at) VALUES (?, ?, ?, NOW())";
+    private static final String UPDATE = "UPDATE player SET username = ?, password = ?, email = ? WHERE id = ?";
+    private static final String DELETE = "DELETE FROM player WHERE id = ?";
     
     @Override
     protected Player mapRow(ResultSet rs) throws SQLException {
         Player player = new Player();
-        player.setId(rs.getInt("player_id"));
+        player.setId(rs.getInt("id"));
         player.setUsername(rs.getString("username"));
-        player.setPassword(rs.getString("password_hash"));
+        player.setPassword(rs.getString("password"));
         player.setEmail(rs.getString("email"));
         player.setCreatedAt(rs.getTimestamp("created_at"));
         return player;
@@ -100,7 +99,7 @@ public class PlayerDAO extends AbstractDAO<Player> {
             
             if (rs.next()) {
                 // En una aplicación real, la contraseña debería estar hasheada
-                String storedPassword = rs.getString("password_hash");
+                String storedPassword = rs.getString("password");
                 if (password.equals(storedPassword)) {
                     player = mapRow(rs);
                 }

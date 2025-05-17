@@ -2,60 +2,47 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import util.ResourceLoader;
 
-public abstract class BaseView extends JPanel {
-
+public class BaseView extends JPanel {
     protected JButton fullscreenButton;
-    protected BufferedImage fondo;
-
+    
     public BaseView() {
-        setLayout(null);
-        setPreferredSize(new Dimension(1280, 720));
-        setFocusable(true);
-
-        // Cargar fondo como imagen real (no ImageIcon)
-        fondo = ResourceLoader.loadBufferedImage("reyAmarillo.png");
-
-        if (fondo == null) {
-            System.err.println("[BaseView] ⚠ Fondo no cargado. Se usará patrón por defecto.");
-        }
-
-        fullscreenButton = new JButton("⛶");
-        fullscreenButton.setBounds(1220, 10, 40, 30);
-        add(fullscreenButton);
+        initComponents();
     }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        if (fondo != null) {
-            g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
-        } else {
-            // Patrón de respaldo
-            int tileSize = 40;
-            Color c1 = new Color(240, 240, 240);
-            Color c2 = new Color(210, 210, 210);
-
-            for (int y = 0; y < getHeight(); y += tileSize) {
-                for (int x = 0; x < getWidth(); x += tileSize) {
-                    g.setColor(((x / tileSize + y / tileSize) % 2 == 0) ? c1 : c2);
-                    g.fillRect(x, y, tileSize, tileSize);
-                }
-            }
-
-            g.setColor(Color.RED);
-            g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-        }
+    
+    protected void initComponents() {
+        setLayout(new BorderLayout());
+        fullscreenButton = new JButton("Pantalla Completa");
+        // Añadir el botón en alguna posición, por ejemplo:
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(fullscreenButton);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
-
-    protected ImageIcon resizeImage(ImageIcon icon, int width, int height) {
-        return ResourceLoader.scaleImage(icon, width, height);
-    }
-
+    
     public JButton getFullscreenButton() {
         return fullscreenButton;
+    }
+    
+    public void setFullscreenAction(ActionListener action) {
+        fullscreenButton.addActionListener(action);
+    }
+    
+    // Método para redimensionar imágenes (usado por CharacterMenu)
+    protected ImageIcon resizeImage(ImageIcon icon, int width, int height) {
+        Image img = icon.getImage();
+        Image resizedImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(resizedImg);
+    }
+    
+    // Método alternativo para redimensionar usando BufferedImage
+    protected BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        g.dispose();
+        return resizedImage;
     }
 }

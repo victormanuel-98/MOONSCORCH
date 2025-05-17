@@ -1,113 +1,136 @@
 package view;
 
+import model.GameItem;
 import model.GameState;
+import model.Treasure;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Random;
+import java.awt.event.ActionListener;
 
 public class TesoroView extends BaseView {
-
-    private JLabel monedaLabel;
-    private JLabel resultadoLabel;
-    private JButton btnCara, btnCruz, btnAceptar;
-
-    private String eleccionUsuario;
-    private final Random random = new Random();
-
-    public TesoroView() {
-        super();
-        setLayout(null);
-
-        JLabel titulo = new JLabel("Tirada del Tesoro", SwingConstants.CENTER);
-        titulo.setFont(new Font("Serif", Font.BOLD, 28));
-        titulo.setForeground(Color.WHITE);
-        titulo.setBounds(400, 50, 480, 40);
-        add(titulo);
-
-        JLabel instruccion = new JLabel("Elige tu lado de la moneda:", SwingConstants.CENTER);
-        instruccion.setForeground(Color.WHITE);
-        instruccion.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        instruccion.setBounds(420, 120, 440, 30);
-        add(instruccion);
-
-        btnCara = new JButton("Cara ($)");
-        btnCara.setBounds(460, 170, 120, 40);
-        add(btnCara);
-
-        btnCruz = new JButton("Cruz (X)");
-        btnCruz.setBounds(700, 170, 120, 40);
-        add(btnCruz);
-
-        monedaLabel = new JLabel("¿?", SwingConstants.CENTER);
-        monedaLabel.setFont(new Font("Serif", Font.BOLD, 100));
-        monedaLabel.setForeground(Color.YELLOW);
-        monedaLabel.setBounds(540, 240, 200, 100);
-        add(monedaLabel);
-
-        resultadoLabel = new JLabel("", SwingConstants.CENTER);
-        resultadoLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        resultadoLabel.setForeground(Color.WHITE);
-        resultadoLabel.setBounds(400, 350, 480, 60);
-        add(resultadoLabel);
-
-        btnAceptar = new JButton("Aceptar y volver al mapa");
-        btnAceptar.setBounds(540, 430, 200, 40);
-        btnAceptar.setEnabled(false);
-        add(btnAceptar);
-
-        // Eventos
-        btnCara.addActionListener(e -> hacerTirada("Cara"));
-        btnCruz.addActionListener(e -> hacerTirada("Cruz"));
-        btnAceptar.addActionListener(e -> volverAlMapa());
+    private GameState gameState;
+    private Treasure tesoro;
+    private JButton recogerButton;
+    private JButton dejarButton;
+    
+    public TesoroView(GameState gameState, Treasure tesoro) {
+        this.gameState = gameState;
+        this.tesoro = tesoro;
+        initComponents();
     }
-
-    private void hacerTirada(String eleccion) {
-        this.eleccionUsuario = eleccion;
-        btnCara.setEnabled(false);
-        btnCruz.setEnabled(false);
-
-        monedaLabel.setText("...");
-        resultadoLabel.setText("Lanzando moneda...");
-        Timer timer = new Timer(1000, e -> mostrarResultado());
-        timer.setRepeats(false);
-        timer.start();
-    }
-
-    private void mostrarResultado() {
-        String resultado = random.nextBoolean() ? "Cara" : "Cruz";
-        monedaLabel.setText(resultado.equals("Cara") ? "$" : "X");
-
-        boolean acierta = resultado.equals(eleccionUsuario);
-        boolean gana = acierta && pasaTiradaLUK();
-
-        if (gana) {
-            String recompensa = calcularRecompensa();
-            resultadoLabel.setText("<html>¡Acertaste la tirada!<br>Recompensa: " + recompensa + "</html>");
-        } else if (acierta) {
-            resultadoLabel.setText("Acertaste... pero la suerte no te acompañó. No hay recompensa.");
-        } else {
-            resultadoLabel.setText("Fallaste la tirada. No hay recompensa.");
+    
+    @Override
+    protected void initComponents() {
+        super.initComponents();
+        setLayout(new BorderLayout());
+        
+        // Panel central
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        
+        // Título
+        JLabel titleLabel = new JLabel("¡Has encontrado un tesoro!", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        centerPanel.add(titleLabel, gbc);
+        
+        // Imagen del tesoro (placeholder)
+        JLabel imageLabel = new JLabel("💰", SwingConstants.CENTER);
+        imageLabel.setFont(new Font("Arial", Font.PLAIN, 72));
+        centerPanel.add(imageLabel, gbc);
+        
+        // Descripción del tesoro
+        JPanel infoPanel = new JPanel(new GridLayout(0, 1));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        if (tesoro != null) {
+            // Tipo de tesoro
+            JLabel typeLabel = new JLabel("Tipo: " + tesoro.getTreasureType());
+            infoPanel.add(typeLabel);
+            
+            // Oro
+            if (tesoro.getGoldValue() > 0) {
+                JLabel goldLabel = new JLabel("Oro: " + tesoro.getGoldValue());
+                goldLabel.setForeground(new Color(218, 165, 32)); // Gold color
+                infoPanel.add(goldLabel);
+            }
+            
+            // Item (si hay)
+            if (tesoro.getItemId() > 0) {
+                GameItem item = gameState.getGameItem(tesoro.getItemId());
+                if (item != null) {
+                    JLabel itemLabel = new JLabel("Item: " + item.getName());
+                    infoPanel.add(itemLabel);
+                    
+                    JLabel itemDescLabel = new JLabel(item.getDescription());
+                    itemDescLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+                    infoPanel.add(itemDescLabel);
+                }
+            }
         }
-
-        btnAceptar.setEnabled(true);
+        
+        centerPanel.add(infoPanel, gbc);
+        
+        // Panel de botones
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        
+        recogerButton = new JButton("Recoger Tesoro");
+        recogerButton.addActionListener(e -> recogerTesoro());
+        buttonPanel.add(recogerButton);
+        
+        dejarButton = new JButton("Dejar");
+        dejarButton.addActionListener(e -> dejarTesoro());
+        buttonPanel.add(dejarButton);
+        
+        centerPanel.add(buttonPanel, gbc);
+        
+        add(centerPanel, BorderLayout.CENTER);
     }
-
-    private boolean pasaTiradaLUK() {
-        int luk = GameState.jugadorActual.getLUK();
-        int chance = 40 + (luk * 4); // Máx 60%
-        return random.nextInt(100) < chance;
+    
+    private void recogerTesoro() {
+        if (tesoro != null && gameState != null) {
+            // Añadir oro
+            if (tesoro.getGoldValue() > 0 && gameState.getCurrentGame() != null) {
+                int nuevoOro = gameState.getCurrentGame().getGold() + tesoro.getGoldValue();
+                gameState.getCurrentGame().setGold(nuevoOro);
+                gameState.saveGame();
+            }
+            
+            // Añadir item (si hay)
+            if (tesoro.getItemId() > 0) {
+                GameItem item = gameState.getGameItem(tesoro.getItemId());
+                if (item != null) {
+                    gameState.addItemToInventory(item, 1);
+                }
+            }
+            
+            // Marcar nodo como completado
+            if (gameState.getCurrentNode() != null) {
+                gameState.completeNode(gameState.getCurrentNode().getId());
+            }
+            
+            // Volver al mapa
+            volverAlMapa();
+        }
     }
-
-    private String calcularRecompensa() {
-        int chance = random.nextInt(100);
-        if (chance < 1) return "¡Gema de Suerte! (+1 LUK)";
-        else if (chance < 51) return "Poción de Vida (+30% HP)";
-        else return "Poción de Maná (+50% MP)";
+    
+    private void dejarTesoro() {
+        // Simplemente volver al mapa sin recoger el tesoro
+        volverAlMapa();
     }
-
+    
     private void volverAlMapa() {
-        GameFrame frame = (GameFrame) SwingUtilities.getWindowAncestor(this);
-        frame.cambiarVista(model.GameState.mapaActual);
+        // Volver al mapa
+        JPanel mapOverview = gameState.getMapOverview();
+        if (mapOverview != null) {
+            Container parent = getParent();
+            if (parent instanceof JPanel) {
+                CardLayout layout = (CardLayout) parent.getLayout();
+                layout.show(parent, mapOverview.getClass().getName());
+            }
+        }
     }
 }
