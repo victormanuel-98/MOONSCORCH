@@ -1,7 +1,5 @@
 # Eclipse files
 .settings/
-.project
-.classpath
 
 # Binarios Java
 /bin/
