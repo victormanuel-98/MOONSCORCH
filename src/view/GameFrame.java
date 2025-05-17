@@ -10,10 +10,14 @@ public class GameFrame extends JFrame {
 
     private CardLayout layout;
     private JPanel mainPanel;
-
+    private GameState gameState;
     private String personajeSeleccionado;
 
     public GameFrame() {
+        initComponents();
+    }
+    
+    private void initComponents() {
         setTitle("MoonScorch");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1280, 720);
@@ -23,6 +27,9 @@ public class GameFrame extends JFrame {
         layout = new CardLayout();
         mainPanel = new JPanel(layout);
         setContentPane(mainPanel);
+        
+        // Inicializar el GameState
+        gameState = new GameState();
 
         mostrarLaunch();
         setVisible(true);
@@ -45,8 +52,26 @@ public class GameFrame extends JFrame {
     }
 
     private void showPanel(JPanel panel) {
-        mainPanel.add(panel, panel.getClass().getName());
-        layout.show(mainPanel, panel.getClass().getName());
+        String panelName = panel.getClass().getName();
+        // Verificar si el panel ya está en el mainPanel
+        boolean exists = false;
+        for (Component comp : mainPanel.getComponents()) {
+            if (comp.equals(panel)) {
+                exists = true;
+                break;
+            }
+        }
+        
+        // Si no existe, añadirlo
+        if (!exists) {
+            mainPanel.add(panel, panelName);
+        }
+        
+        // Mostrar el panel
+        layout.show(mainPanel, panelName);
+        
+        // Asegurar que el panel tiene el foco
+        panel.requestFocusInWindow();
     }
 
     // NUEVO MÉTODO PÚBLICO para que otras vistas puedan solicitar un cambio
@@ -103,8 +128,10 @@ public class GameFrame extends JFrame {
                 return;
             }
 
-            GameState.jugadorActual = new PlayerCombatData(nombre, personaje, 1, statsFinales);
-            GameState.asignarObjetosIniciales();
+            // Crear PlayerCombatData y asignarlo al GameState
+            PlayerCombatData playerData = new PlayerCombatData(nombre, personaje, 1, statsFinales);
+            gameState.setPlayerCombatData(playerData);
+            gameState.asignarObjetosIniciales();
             mostrarReadyForBattle();
         });
 
@@ -119,8 +146,21 @@ public class GameFrame extends JFrame {
         ReadyForBattle readyView = new ReadyForBattle();
 
         readyView.setComenzarAction(e -> {
-            GameState.mapaActual = new MapOverview();
-            cambiarVista(GameState.mapaActual);
+            try {
+                // Crear el panel de mapa
+                MapOverview mapOverview = new MapOverview(gameState);
+                
+                // Asignar el panel al GameState
+                gameState.setMapOverview(mapOverview);
+                
+                // Mostrar el panel
+                cambiarVista(mapOverview);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, 
+                    "Error al cargar el mapa: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
         readyView.setFullscreenAction(e -> setExtendedState(JFrame.MAXIMIZED_BOTH));
 
@@ -128,6 +168,27 @@ public class GameFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameFrame::new);
+        try {
+            // Establecer el Look and Feel del sistema
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new GameFrame();
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, 
+                    "Error al iniciar la aplicación: " + e.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+    
+    // Getter para acceder al GameState desde otras clases
+    public GameState getGameState() {
+        return gameState;
     }
 }
