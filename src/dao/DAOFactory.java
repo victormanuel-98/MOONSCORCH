@@ -33,8 +33,8 @@ public class DAOFactory {
      * 
      * @return Instancia de PlayerDAO
      */
-    public PlayerDAO createPlayerDAO() {
-        return new PlayerDAO();
+    public PlayerDao createPlayerDAO() {
+        return new PlayerDao();
     }
     
     /**

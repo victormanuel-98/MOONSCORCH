@@ -15,9 +15,9 @@ import model.Player;
 /**
  * DAO para gestionar jugadores/usuarios en la base de datos.
  */
-public class PlayerDAO extends AbstractDAO<Player> {
+public class PlayerDao extends AbstractDAO<Player> {
     
-    private static final Logger LOGGER = Logger.getLogger(PlayerDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PlayerDao.class.getName());
     
     private static final String FIND_BY_ID = "SELECT * FROM player WHERE player_id = ?";
     private static final String FIND_ALL = "SELECT * FROM player";
