@@ -1,6 +1,9 @@
 package view;
 
 import model.GameState;
+import model.Enemy;
+import model.Player;
+import controller.CombatController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -77,7 +80,14 @@ public class MapOverview extends BaseView {
                         "¿Quieres enfrentarte al enemigo?", "Batalla", JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION) {
                     avanzar();
-                    JOptionPane.showMessageDialog(this, "Simulando batalla...");
+                    // Obtener jugador y enemigo
+                    Player jugador = GameState.jugadorActual;
+                    Enemy enemigo = obtenerEnemigoDelNodo(index);
+
+                    // Crear controlador y vista de combate
+                    CombatController combatController = new CombatController(jugador, enemigo);
+                    CombatView combatView = new CombatView(jugador, enemigo, combatController);
+                    combatView.setVisible(true);
                 }
             }
             case "TREASURE" -> {
@@ -91,6 +101,18 @@ public class MapOverview extends BaseView {
                 avanzar();
             }
         }
+    }
+
+    private Enemy obtenerEnemigoDelNodo(int index) {
+        // Aquí debes obtener el enemigo real según el nodo.
+        // Por ahora, devolvemos un enemigo de ejemplo.
+        Enemy enemigoEjemplo = new Enemy();
+        enemigoEjemplo.setName("Enemigo Nivel " + (index + 1));
+        enemigoEjemplo.setCurrentHp(100);
+        enemigoEjemplo.setMaxHp(100);
+        enemigoEjemplo.setAtk(15);
+        enemigoEjemplo.setDef(5);
+        return enemigoEjemplo;
     }
 
     private void avanzar() {
