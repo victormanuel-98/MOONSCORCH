@@ -1,0 +1,30 @@
+                   MOONSCORCH                   
+==============================================
+
+Has completado con éxito tu aventura en el mundo de MOONSCORCH.
+
+Héroe: Victor
+Clase: Caballero
+Nivel alcanzado: 10
+
+Tiempo de juego: 0 horas, 0 minutos y 47 segundos
+
+==============================================
+ESTADÍSTICAS DE AVENTURA
+==============================================
+
+Enemigos derrotados: 5
+Tesoros encontrados: 1
+Oro acumulado: 0
+Pociones usadas: 0
+
+==============================================
+
+"Tu nombre será recordado en las leyendas de MOONSCORCH.
+Has demostrado valor, astucia y determinación en tu viaje.
+Que tus hazañas inspiren a futuros héroes."
+
+                   - Los Creadores -                   
+
+==============================================
+Fecha de finalización: 23/05/2025 03:45:14

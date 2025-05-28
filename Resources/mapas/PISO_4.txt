@@ -1,0 +1,3 @@
+[MAPA_1](I:B)|PASADO:NO|>
+[END_GAME:NO]
+
